@@ -1,0 +1,17 @@
+{
+  "filter": {
+    "and": [
+      {
+        "geo_distance": {
+          "distance": "10000km",
+          "1_eavfltxt_geo": "-63.059226,145.539848"
+        }
+      }
+    ]
+  },
+  "from": 0,
+  "size": 10,
+  "query": {
+    "match_all": {}
+  }
+}

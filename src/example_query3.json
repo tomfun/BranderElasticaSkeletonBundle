@@ -1,0 +1,15 @@
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "query_string": {
+            "query": "спросила"
+          }
+        }
+      ]
+    }
+  },
+  "from": 0,
+  "size": 10
+}

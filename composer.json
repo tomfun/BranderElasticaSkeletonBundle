@@ -1,0 +1,44 @@
+{
+  "name": "tomfun/brander-elastica-skeleton",
+  "type": "symfony-bundle",
+  "description": "helps to create query for elastic search friendsofsymfony/elastica-bundle",
+  "keywords": [
+    "elastica",
+    "elasticsearch",
+    "search"
+  ],
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:igrvak/FOSElasticaBundle.git"
+    }
+  ],
+  "authors": [
+    {
+      "name": "Grigory Kotov",
+      "email": "tomfun1990@gmail.com"
+    }
+  ],
+  "require": {
+    "jms/serializer-bundle": "*",
+    "symfony/symfony": "*",
+    "sensio/framework-extra-bundle": "*",
+    "pagerfanta/pagerfanta": "*",
+    "friendsofsymfony/elastica-bundle": "^3.1",
+    "doctrine/common": "*",
+    "doctrine/annotations": "*"
+  },
+  "require-dev":{
+  },
+  "suggest": {
+    "symfony/yaml": "Required if you'd like to serialize data to YAML format.",
+    "igrvak/elastica-bundle": "Main elastic search bundle",
+    "doctrine/orm": "to use elastica it"
+  },
+  "autoload": {
+    "psr-4": {
+      "Brander\\Bundle\\ElasticaSkeletonBundle\\": "src/"
+    }
+  }
+}

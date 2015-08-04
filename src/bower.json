@@ -1,0 +1,11 @@
+{
+  "name": "brander-elastica-skeleton",
+  "main": "bower.json",
+  "dependencies": {
+    "backbone": "*",
+    "twig":  "*"
+  },
+  "ignore": [
+    "**/*"
+  ]
+}

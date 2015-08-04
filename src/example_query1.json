@@ -1,0 +1,11 @@
+{
+  "query": {
+    "multi_match": {
+      "fields": [
+        "attributes.6^2",
+        "attributes.6_eavfltxt_*"
+      ],
+      "query": "Пошли в гостиную"
+    }
+  }
+}
