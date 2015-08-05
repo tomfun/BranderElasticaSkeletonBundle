@@ -1,6 +1,6 @@
 define([
     'lodash',
-    'iwin-app/jstorage',
+    'simpleStorage',
     './abstractFilter'
 ], function (_, jStorage, abstractFilter) {
     'use strict';

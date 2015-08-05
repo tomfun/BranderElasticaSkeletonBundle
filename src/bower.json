@@ -3,7 +3,8 @@
   "main": "bower.json",
   "dependencies": {
     "backbone": "*",
-    "twig":  "*"
+    "twig":  "*",
+    "simpleStorage": "*"
   },
   "ignore": [
     "**/*"

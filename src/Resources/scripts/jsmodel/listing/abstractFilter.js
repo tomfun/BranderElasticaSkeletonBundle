@@ -4,7 +4,6 @@ define([
     'backbone',
     'util/basemodel',
     'routing',
-    'iwin-app/jstorage',
 ], function ($, _, Backbone, BaseModel, Routing) {
     'use strict';
 
