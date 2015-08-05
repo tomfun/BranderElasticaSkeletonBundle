@@ -29,7 +29,7 @@ define([
             defaults:             {
                 page:  1,
                 view:  'tiles',
-                order: 'createdAt desc',
+                order: '',// this means relevant. example order: 'createdAt desc'
             },
             ignorePageAttributes: ['page', 'view', 'order'],
             initialize:           function () {
@@ -37,6 +37,7 @@ define([
                 this.on('change', this.resetPageHandler);
             },
 
+            // when changing some filter fields, must reset page to initial state. except ignorePageAttributes fields
             resetPageHandler: function () {
                 var changed = _.keys(this.changedAttributes()),
                     list    = _.intersection(this.ignorePageAttributes, changed);
@@ -45,6 +46,7 @@ define([
                 }
             },
 
+            // model -> json -> string
             toHash: function () {
                 return JSON.stringify(this.toJSON());
             },
@@ -69,6 +71,7 @@ define([
                 return Routing.generate(routes[type], {filters: filters,});
             },
 
+            // reset all filter's fields
             clearFilters: function () {
                 _.each(
                     _.without(this.keys(), 'view', 'order'),
