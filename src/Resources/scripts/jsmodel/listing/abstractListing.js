@@ -72,8 +72,7 @@ define([
         if (!disableCategoryFilters) {
             ModelTypes.filters = ModelByFilter.extend({
                 defaults: {
-                    filters:    [],
-                    attributes: [],
+                    attributes: {},
                 },
                 type:     'filters'
             });
