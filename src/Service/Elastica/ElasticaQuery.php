@@ -94,7 +94,7 @@ abstract class ElasticaQuery
     public function setOrder($order)
     {
         if ($order) {
-            $regex = '!^([a-zA-Z0-9_]+)(\ (asc|desc))?$!';
+            $regex = '!^([a-zA-Z0-9_\.]+)(\ (asc|desc))?$!';
             if (!preg_match($regex, $order)) {
                 throw new \Exception('Wrong order parameter: ' . $order);
             }
