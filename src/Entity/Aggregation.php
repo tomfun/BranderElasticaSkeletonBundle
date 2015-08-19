@@ -24,7 +24,7 @@ class Aggregation
      * @param string $type
      * @param string|null $index
      * @param string|null $setter
-     * @param string|null $extra
+     * @param mixed|null $extra
      */
     public function __construct($name, $type, $index = null, $setter = null, $extra = null)
     {
@@ -32,7 +32,7 @@ class Aggregation
         $this->type = $type;
         $this->index = $index;
         $this->setter = $setter;
-        $this->extra = $extra;
+        $this->extra = array_merge(['extractValueField' => 'value'], $extra);
     }
 
     /**

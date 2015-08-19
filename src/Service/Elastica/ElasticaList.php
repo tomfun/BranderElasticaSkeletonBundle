@@ -11,6 +11,7 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use FOS\ElasticaBundle\Paginator\RawPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
+use ReflectionClass;
 
 /**
  * @class  ElasticaList
@@ -268,7 +269,12 @@ abstract class ElasticaList
             $name = $aggregationMetaData->getName();
             $type = '\\Elastica\\Aggregation\\' . ucfirst($type);
             /** @var AbstractSimpleAggregation $aggregation */
-            $aggregation = new $type($name);
+            if (isset($aggregationMetaData->getExtra()['constructArguments'])) {
+                $reflect = new ReflectionClass($type);
+                $aggregation = $reflect->newInstanceArgs($aggregationMetaData->getExtra()['constructArguments']);
+            } else {
+                $aggregation = new $type($name);
+            }
             $aggregation->setField($index);
             $elastica->addAggregation($aggregation);
         }
@@ -326,7 +332,6 @@ abstract class ElasticaList
                         . ') not found in result, can\'t get Aggregations'
                     );
                 }
-                $value = $aggregations[$name]['value'];
                 $setter = $aggregationMetadata->getSetter();
                 if (!method_exists($result, $setter)) {
                     throw new \Exception(
@@ -339,7 +344,13 @@ abstract class ElasticaList
                         . ', can\'t get Aggregations'
                     );
                 }
-                $result->$setter($value);
+                if (isset($aggregationMetadata->getExtra()['extractValueField'])) {
+                    $value = $aggregations[$name][$aggregationMetadata->getExtra()['extractValueField']];
+                } else {
+                    $value = $aggregations[$name];
+                }
+
+                $result->$setter($value, $aggregationMetadata);
             }
         } else {
             throw new \Exception('Wrong adapter type, can\'t get Aggregations');
