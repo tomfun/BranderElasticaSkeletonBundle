@@ -27,7 +27,8 @@
     "pagerfanta/pagerfanta": "*",
     "friendsofsymfony/elastica-bundle": "^3.1",
     "doctrine/common": "*",
-    "doctrine/annotations": "*"
+    "doctrine/annotations": "*",
+    "werkint/redis-bundle": "dev-master",
   },
   "require-dev":{
   },
