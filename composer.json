@@ -28,7 +28,7 @@
     "friendsofsymfony/elastica-bundle": "^3.1",
     "doctrine/common": "*",
     "doctrine/annotations": "*",
-    "werkint/redis-bundle": "dev-master",
+    "werkint/redis-bundle": "dev-master"
   },
   "require-dev":{
   },
