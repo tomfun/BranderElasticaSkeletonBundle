@@ -2,6 +2,7 @@
 namespace Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica;
 
 use Brander\Bundle\ElasticaSkeletonBundle\Entity\Aggregation;
+use Elastica\Query\BoolQuery;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -40,9 +41,9 @@ abstract class ElasticaQuery
     abstract public function getFilters();
 
     /**
-     * @param \Elastica\Query\Bool $query
+     * @param BoolQuery $query
      */
-    abstract public function addQueries(\Elastica\Query\Bool $query);
+    abstract public function addQueries(BoolQuery $query);
 
     /**
      * @return void
