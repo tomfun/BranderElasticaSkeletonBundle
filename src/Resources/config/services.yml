@@ -18,14 +18,14 @@ services:
 
 ###
   brander.bundle.elasticaskeleton.annotaton.driver:
-    class: %brander.bundle.elasticaskeleton.annotaton.driver.class%
+    class: "%brander.bundle.elasticaskeleton.annotaton.driver.class%"
     arguments:
-      - @annotations.cached_reader
+      - "@annotations.cached_reader"
 
   brander.bundle.elasticaskeleton.metadata_factory:
     class: Brander\Bundle\ElasticaSkeletonBundle\Service\Annotation\ElasticaMetadataFactory
     arguments:
-      - @brander.bundle.elasticaskeleton.annotaton.driver
+      - "@brander.bundle.elasticaskeleton.annotaton.driver"
     calls:
       - [setCache, ["@brander.bundle.elasticaskeleton.cacher"]]
 
@@ -33,7 +33,7 @@ services:
     class: Metadata\Cache\DoctrineCacheAdapter
     arguments:
       - "elastica_query_metadata"
-      - @werkint.redis.doctrinecacher
+      - "@werkint.redis.doctrinecacher"
 
   brander.bundle.elasticaskeleton.list:
     class: Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica\ElasticaList
@@ -44,6 +44,6 @@ services:
   brander.bundle.elasticaskeleton.deserializeparamconverter:
     class: Brander\Bundle\ElasticaSkeletonBundle\Service\DeserializeParamConverter
     arguments:
-      - @serializer
+      - "@serializer"
     tags:
       - { name: request.param_converter, priority: -2, converter: query_deserializer }
