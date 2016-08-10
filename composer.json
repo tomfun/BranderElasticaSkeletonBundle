@@ -23,7 +23,7 @@
   "require": {
     "sensio/framework-extra-bundle": "^3",
     "pagerfanta/pagerfanta": "^1",
-    "friendsofsymfony/elastica-bundle": "^3.1",
+    "friendsofsymfony/elastica-bundle": "^3.2",
     "doctrine/common": "^2",
     "doctrine/annotations": "^1"
   },

@@ -2,9 +2,11 @@ define([
     'jquery',
     'lodash',
     'backbone',
-    'util/basemodel',
-], function ($, _, Backbone, BaseModel) {
+    'brander-elastica-skeleton/basemodel',
+], function ($, _, Backbone, BaseModelEs6) {
     'use strict';
+
+    var BaseModel = BaseModelEs6.default;
 
     /**
      * Filter - Class, produced by abstractFilter

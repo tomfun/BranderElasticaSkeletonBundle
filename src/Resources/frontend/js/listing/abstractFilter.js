@@ -1,13 +1,13 @@
 define([
-    'jquery',
     'lodash',
-    'backbone',
-    'util/basemodel',
-    'routing',
-], function ($, _, Backbone, BaseModel, Routing) {
+    'brander-elastica-skeleton/basemodel',
+    'router',
+], function (_, BaseModelEs6, RoutingEs6) {
     'use strict';
-
     /* global console */
+
+    var BaseModel = BaseModelEs6.default;
+    var Routing = RoutingEs6.default;
 
     /**
      routes      = {

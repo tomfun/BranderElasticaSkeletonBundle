@@ -2,7 +2,7 @@
 namespace Brander\Bundle\ElasticaSkeletonBundle\Entity;
 
 /**
- * @class  Aggregation
+ * class  Aggregation
  * @author Tomfun <tomfun1990@gmail.com>
  */
 class Aggregation
