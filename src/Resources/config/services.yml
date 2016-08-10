@@ -3,46 +3,42 @@ parameters:
 #    Brander\Bundle\ElasticaSkeletonBundle\Example
   brander.bundle.elasticaskeleton.annotaton.driver.class:
     Brander\Bundle\ElasticaSkeletonBundle\Service\Annotation\AnnotationDriver
+  brander.bundle.elasticaskeleton.metadata_factory.class:
+    Brander\Bundle\ElasticaSkeletonBundle\Service\Annotation\ElasticaMetadataFactory
+  brander.bundle.elasticaskeleton.cacher.class:
+    Metadata\Cache\DoctrineCacheAdapter
+  brander.bundle.elasticaskeleton.list.class:
+    Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica\ElasticaList
+  brander.bundle.elasticaskeleton.deserializeparamconverter.class:
+    Brander\Bundle\ElasticaSkeletonBundle\Service\DeserializeParamConverter
 
 services:
-#  brander_elastica_skeleton.example:
-#    class: %brander_elastica_skeleton.example.class%
-# this service for test only. todo: move to user bundle
-
-# ------- example ---------
-#  iwin_user.elastica_query.user:
-#    class: Iwin\Bundle\UserBundle\Entity\Query\UserElasticaList
-#    parent: brander.bundle.elasticaskeleton.list
-#    arguments:
-#      - @fos_elastica.finder.iwin_user.user
-
-###
   brander.bundle.elasticaskeleton.annotaton.driver:
     class: "%brander.bundle.elasticaskeleton.annotaton.driver.class%"
     arguments:
       - "@annotations.cached_reader"
 
   brander.bundle.elasticaskeleton.metadata_factory:
-    class: Brander\Bundle\ElasticaSkeletonBundle\Service\Annotation\ElasticaMetadataFactory
+    class: "%brander.bundle.elasticaskeleton.metadata_factory.class%"
     arguments:
       - "@brander.bundle.elasticaskeleton.annotaton.driver"
     calls:
       - [setCache, ["@brander.bundle.elasticaskeleton.cacher"]]
 
   brander.bundle.elasticaskeleton.cacher:
-    class: Metadata\Cache\DoctrineCacheAdapter
+    class: "%brander.bundle.elasticaskeleton.cacher.class%"
     arguments:
       - "elastica_query_metadata"
-      - "@werkint.redis.doctrinecacher"
+      - "@brander.bundle.elasticaskeleton.cache_storage"
 
   brander.bundle.elasticaskeleton.list:
-    class: Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica\ElasticaList
+    class: "%brander.bundle.elasticaskeleton.list.class%"
     abstract: true
     calls:
       - [setMetadataFactory, ["@brander.bundle.elasticaskeleton.metadata_factory"]]
 
   brander.bundle.elasticaskeleton.deserializeparamconverter:
-    class: Brander\Bundle\ElasticaSkeletonBundle\Service\DeserializeParamConverter
+    class: "%brander.bundle.elasticaskeleton.deserializeparamconverter.class%"
     arguments:
       - "@serializer"
     tags:

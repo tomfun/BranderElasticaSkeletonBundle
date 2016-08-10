@@ -42,3 +42,14 @@ class AppKernel extends Kernel
 This just [doctrine cache bundle configuration](https://symfony.com/doc/current/bundles/DoctrineCacheBundle/usage.html)
 BranderElasticaSkeletonBundle require some cache adapter by alias 
 *brander.bundle.elasticaskeleton.cache_storage*
+
+### Example of list service (wrapper over fos elastica finder)
+```yaml
+# services.yml
+services:
+ my_bundle.elastica_list.entity:
+   class: Iwin\Bundle\UserBundle\Entity\Query\UserElasticaList
+   parent: brander.bundle.elasticaskeleton.list # elastica skeleton abstract
+   arguments:
+     - @fos_elastica.finder.iwin_user.user # fos elastica finder
+```
