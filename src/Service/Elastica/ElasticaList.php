@@ -95,7 +95,7 @@ abstract class ElasticaList
 
     /**
      * @param ElasticaQuery $query
-     * @return Query\Bool|null
+     * @return Query\BoolQuery|null
      * @throws \Exception
      */
     protected function createQuery($query)
@@ -104,7 +104,7 @@ abstract class ElasticaList
         $methods = $this->metadataFactory->getQueryMethods($query);
         $prefix = 'Brander\\Bundle\\ElasticaSkeletonBundle\\Annotation\\';
 
-        $qry = new \Elastica\Query\Bool();
+        $qry = new \Elastica\Query\BoolQuery();
 
         foreach ($properties as $property) {
             $value = $property->getValue($query);

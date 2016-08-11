@@ -10,13 +10,23 @@ class ElasticaResult
 {
     /**
      * @var object[]|null
+     * @Serializer\Groups({"eav_result"})
      */
     protected $rows;
-    /** @var int */
+    /**
+     * @var int
+     * @Serializer\Groups({"eav_result"})
+     */
     protected $page;
-    /** @var int */
+    /**
+     * @var int
+     * @Serializer\Groups({"eav_result"})
+     */
     protected $countPage;
-    /** @var int */
+    /**
+     * @var int
+     * @Serializer\Groups({"eav_result"})
+     */
     protected $countTotal;
     /**
      * @Serializer\Exclude
