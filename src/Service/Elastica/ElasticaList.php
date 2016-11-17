@@ -4,6 +4,8 @@ namespace Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica;
 use Brander\Bundle\ElasticaSkeletonBundle\Annotation\ExcludeIf;
 use Brander\Bundle\ElasticaSkeletonBundle\Annotation\QueryString;
 use Brander\Bundle\ElasticaSkeletonBundle\Annotation\Raw;
+use Brander\Bundle\ElasticaSkeletonBundle\Entity\AggregationConstructorInterface;
+use Brander\Bundle\ElasticaSkeletonBundle\Entity\AggregationMetadataInterface;
 use Brander\Bundle\ElasticaSkeletonBundle\Service\Annotation\ElasticaMetadataFactory;
 use Elastica\Aggregation\AbstractSimpleAggregation;
 use Elastica\Query;
@@ -41,7 +43,78 @@ abstract class ElasticaList
     }
 
     /**
-     * @param mixed $value
+     * @param ElasticaQuery $query
+     * @param array         $orderMap
+     * @return ElasticaResult
+     * @throws \Exception
+     */
+    public function result($query, array $orderMap = null)
+    {
+        if ($query instanceof ElasticaQuery) {
+            $query->prettify();
+            $qry = $this->createQuery($query);
+            $filterCommon = $this->createFilters($query);
+
+            $elastica = new \Elastica\Query($qry);
+
+            $this->addFilters($elastica, $filterCommon);
+            $this->addAggregations($elastica, $query);
+            $this->addOrder($elastica, $query);
+
+            $data = $this->finder->findPaginated($elastica);
+            $data->setCurrentPage($query->getPage());
+            $data->setMaxPerPage($query->getPageGroup());
+
+            $rows = (array) $data->getIterator();
+            $result = $this->createResult(
+                $data,
+                $rows,
+                $query->getPage(),
+                max($data->getNbPages(), 1),
+                $data->getNbResults()
+            );
+            $this->addAggregationToResult($data, $result, $query);
+
+            return $result;
+        }
+
+        throw new \Exception('Wrong query');
+    }
+
+    /**
+     * @param ElasticaQuery $query
+     * @return ElasticaResult
+     * @throws \Exception
+     */
+    public function resultSearch($query)
+    {
+        if ($query instanceof ElasticaQuery) {
+            $query->prettify();
+            $qry = $this->createQuery($query);
+
+            $elastica = new \Elastica\Query($qry);
+
+            $data = $this->finder->findPaginated($elastica);
+            $data->setCurrentPage($query->getPage());
+            $data->setMaxPerPage($query->getPageGroup());
+
+            $rows = (array) $data->getIterator();
+            $result = $this->createResult(
+                $data,
+                $rows,
+                $query->getPage(),
+                max($data->getNbPages(), 1),
+                $data->getNbResults()
+            );
+
+            return $result;
+        }
+
+        throw new \Exception('Wrong query');
+    }
+
+    /**
+     * @param mixed  $value
      * @param string $filter
      * @return bool
      * @throws \Exception
@@ -90,6 +163,7 @@ abstract class ElasticaList
             default:
                 throw new \Exception('Wrong filter type for ElasticaList');
         }
+
         return true;
     }
 
@@ -117,17 +191,17 @@ abstract class ElasticaList
             }
             $subQuery = null;
             switch (get_class($type)) {
-                case $prefix . 'Term':
+                case $prefix.'Term':
                     $subQuery = new \Elastica\Query\Term(
                         [
                             $type->index => $value,
                         ]
                     );
                     break;
-                case $prefix . 'Terms':
+                case $prefix.'Terms':
                     $subQuery = new \Elastica\Query\Terms($type->index, $value);
                     break;
-                case $prefix . 'QueryString':
+                case $prefix.'QueryString':
                     /** @var $type QueryString */
                     $type = $property->getType();
                     if ($type->withoutIndex) {
@@ -143,8 +217,8 @@ abstract class ElasticaList
                 case get_class():
                     throw new \Exception(
                         'You forgot set @Elastica\Term() or else type in '
-                        . get_class($query)
-                        . '->' . $property->name
+                        .get_class($query)
+                        .'->'.$property->name
                     );
                     break;
                 default:
@@ -174,19 +248,17 @@ abstract class ElasticaList
             }
             $subQuery = null;
             switch (get_class($type)) {
-                case $prefix . 'Term':
+                case $prefix.'Term':
                     $subQuery = new \Elastica\Query\Term(
                         [
                             $type->index => $value,
                         ]
                     );
                     break;
-                case $prefix . 'Terms':
-                    $subQuery = new \Elastica\Query\Terms(
-                        $type->index, $value
-                    );
+                case $prefix.'Terms':
+                    $subQuery = new \Elastica\Query\Terms($type->index, $value);
                     break;
-                case $prefix . 'QueryString':
+                case $prefix.'QueryString':
                     /** @var $type QueryString */
                     if ($type->withoutIndex) {
                         $subQuery = new \Elastica\Query\QueryString($value);
@@ -198,7 +270,7 @@ abstract class ElasticaList
                         );
                     }
                     break;
-                case $prefix . 'Raw':
+                case $prefix.'Raw':
                     /** @var $type Raw */
                     $subQuery = $value;
                     if (!($subQuery instanceof \Elastica\Query\AbstractQuery || is_array($subQuery))) {
@@ -207,10 +279,7 @@ abstract class ElasticaList
                     break;
                 case get_class():
                     throw new \Exception(
-                        'You forgot set @Elastica\Term() or else type in '
-                        . get_class($query)
-                        . '->' . $methodName
-                        . '()'
+                        'You forgot set @Elastica\Term() or else type in '.get_class($query).'->'.$methodName.'()'
                     );
                 default:
                     throw new \Exception(
@@ -236,6 +305,7 @@ abstract class ElasticaList
         if (!count($check)) {
             $qry = null;
         }
+
         return $qry;
     }
 
@@ -254,7 +324,7 @@ abstract class ElasticaList
     }
 
     /**
-     * @param Query $elastica
+     * @param Query         $elastica
      * @param ElasticaQuery $query
      */
     protected function addAggregations(\Elastica\Query $elastica, $query)
@@ -264,24 +334,21 @@ abstract class ElasticaList
             return;
         }
         foreach ($map as $aggregationMetaData) {
-            $index = $aggregationMetaData->getIndex();
-            $type = $aggregationMetaData->getType();
-            $name = $aggregationMetaData->getName();
-            $type = '\\Elastica\\Aggregation\\' . ucfirst($type);
-            /** @var AbstractSimpleAggregation $aggregation */
-            if (isset($aggregationMetaData->getExtra()['constructArguments'])) {
-                $reflect = new ReflectionClass($type);
-                $aggregation = $reflect->newInstanceArgs($aggregationMetaData->getExtra()['constructArguments']);
+            $aggregation = null;
+            if ($aggregationMetaData instanceof AggregationConstructorInterface) {
+                $aggregation = $aggregationMetaData->getAggregationForQuery();
+            } elseif ($aggregationMetaData instanceof AggregationMetadataInterface) {
+                $aggregation = $this->constructAggregationFromMetadata($aggregationMetaData);
             } else {
-                $aggregation = new $type($name);
+                $class = null === $aggregationMetaData ? 'null' : get_class($aggregationMetaData);
+                throw new \InvalidArgumentException("Don't know how to get aggregation from $class");
             }
-            $aggregation->setField($index);
             $elastica->addAggregation($aggregation);
         }
     }
 
     /**
-     * @param \Elastica\Query $elastica
+     * @param \Elastica\Query                $elastica
      * @param \Elastica\Filter\AbstractMulti $filterCommon
      */
     protected function addFilters(Query $elastica, \Elastica\Filter\AbstractMulti $filterCommon)
@@ -293,7 +360,7 @@ abstract class ElasticaList
 
     /**
      * @param \Elastica\Query $elastica
-     * @param ElasticaQuery $query
+     * @param ElasticaQuery   $query
      */
     protected function addOrder(Query $elastica, $query)
     {
@@ -309,9 +376,9 @@ abstract class ElasticaList
     }
 
     /**
-     * @param Pagerfanta $data
+     * @param Pagerfanta     $data
      * @param ElasticaResult $result
-     * @param ElasticaQuery $query
+     * @param ElasticaQuery  $query
      * @throws \Exception
      */
     protected function addAggregationToResult(Pagerfanta $data, ElasticaResult $result, ElasticaQuery $query)
@@ -327,30 +394,10 @@ abstract class ElasticaList
                 $name = $aggregationMetadata->getName();
                 if (!isset($aggregations[$name])) {
                     throw new \Exception(
-                        'Specified aggregation ('
-                        . $name
-                        . ') not found in result, can\'t get Aggregations'
+                        'Specified aggregation ('.$name.') not found in result, can\'t get Aggregations'
                     );
                 }
-                $setter = $aggregationMetadata->getSetter();
-                if (!method_exists($result, $setter)) {
-                    throw new \Exception(
-                        'Specified aggregation ('
-                        . $name
-                        . ') has no setter for data: '
-                        . $setter
-                        . ', in class: '
-                        . get_class($result)
-                        . ', can\'t get Aggregations'
-                    );
-                }
-                if (isset($aggregationMetadata->getExtra()['extractValueField'])) {
-                    $value = $aggregations[$name][$aggregationMetadata->getExtra()['extractValueField']];
-                } else {
-                    $value = $aggregations[$name];
-                }
-
-                $result->$setter($value, $aggregationMetadata);
+                $aggregationMetadata->transformToResult($result, $aggregations);
             }
         } else {
             throw new \Exception('Wrong adapter type, can\'t get Aggregations');
@@ -369,73 +416,24 @@ abstract class ElasticaList
     abstract protected function createResult(Pagerfanta $data, $rows, $page, $countPage, $countTotal);
 
     /**
-     * @param ElasticaQuery $query
-     * @param array $orderMap
-     * @return ElasticaResult
-     * @throws \Exception
+     * @param AggregationMetadataInterface $metadata
+     * @return AbstractSimpleAggregation
      */
-    public function result($query, array $orderMap = null)
+    private function constructAggregationFromMetadata(AggregationMetadataInterface $metadata)
     {
-        if ($query instanceof ElasticaQuery) {
-            $query->prettify();
-            $qry = $this->createQuery($query);
-            $filterCommon = $this->createFilters($query);
-
-            $elastica = new \Elastica\Query($qry);
-
-            $this->addFilters($elastica, $filterCommon);
-            $this->addAggregations($elastica, $query);
-            $this->addOrder($elastica, $query);
-
-            $data = $this->finder->findPaginated($elastica);
-            $data->setCurrentPage($query->getPage());
-            $data->setMaxPerPage($query->getPageGroup());
-
-            $rows = (array)$data->getIterator();
-            $result = $this->createResult(
-                $data,
-                $rows,
-                $query->getPage(),
-                max($data->getNbPages(), 1),
-                $data->getNbResults()
-            );
-            $this->addAggregationToResult($data, $result, $query);
-
-            return $result;
+        $index = $metadata->getIndex();
+        $type = $metadata->getType();
+        $name = $metadata->getName();
+        $type = '\\Elastica\\Aggregation\\'.ucfirst($type);
+        /** @var AbstractSimpleAggregation $aggregation */
+        if ($metadata->getConstructArguments()) {
+            $reflect = new ReflectionClass($type);
+            $aggregation = $reflect->newInstanceArgs($metadata->getConstructArguments());
+        } else {
+            $aggregation = new $type($name);
         }
+        $aggregation->setField($index);
 
-        throw new \Exception('Wrong query');
-    }
-
-    /**
-     * @param ElasticaQuery $query
-     * @return ElasticaResult
-     * @throws \Exception
-     */
-    public function resultSearch($query)
-    {
-        if ($query instanceof ElasticaQuery) {
-            $query->prettify();
-            $qry = $this->createQuery($query);
-
-            $elastica = new \Elastica\Query($qry);
-
-            $data = $this->finder->findPaginated($elastica);
-            $data->setCurrentPage($query->getPage());
-            $data->setMaxPerPage($query->getPageGroup());
-
-            $rows = (array)$data->getIterator();
-            $result = $this->createResult(
-                $data,
-                $rows,
-                $query->getPage(),
-                max($data->getNbPages(), 1),
-                $data->getNbResults()
-            );
-
-            return $result;
-        }
-
-        throw new \Exception('Wrong query');
+        return $aggregation;
     }
 }

@@ -2,6 +2,7 @@
 namespace Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica;
 
 use Brander\Bundle\ElasticaSkeletonBundle\Entity\Aggregation;
+use Brander\Bundle\ElasticaSkeletonBundle\Entity\AggregationInterface;
 use Elastica\Query\BoolQuery;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -31,7 +32,7 @@ abstract class ElasticaQuery
     protected $order = null;
 
     /**
-     * @return array|Aggregation[]
+     * @return array|AggregationInterface[]
      */
     abstract public function getAggregations();
 

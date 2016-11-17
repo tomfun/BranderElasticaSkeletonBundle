@@ -1,6 +1,7 @@
 <?php
 namespace Brander\Bundle\ElasticaSkeletonBundle\Service\Elastica;
 
+use Brander\Bundle\ElasticaSkeletonBundle\Entity\AutoAggregationInterface;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -36,10 +37,10 @@ class ElasticaResult
 
     /**
      * @param object[] $rows Collection of object
-     * @param int $page
-     * @param int $countPage
-     * @param int $countTotal
-     * @param array $extra
+     * @param int      $page
+     * @param int      $countPage
+     * @param int      $countTotal
+     * @param array    $extra
      */
     public function __construct($rows = [], $page = 1, $countPage = 1, $countTotal = 1, array $extra = [])
     {
@@ -76,6 +77,7 @@ class ElasticaResult
     public function setPage($page)
     {
         $this->page = $page;
+
         return $this;
     }
 
@@ -94,6 +96,7 @@ class ElasticaResult
     public function setCountPage($countPage)
     {
         $this->countPage = $countPage;
+
         return $this;
     }
 
@@ -112,6 +115,7 @@ class ElasticaResult
     public function setCountTotal($countTotal)
     {
         $this->countTotal = $countTotal;
+
         return $this;
     }
 
@@ -130,6 +134,50 @@ class ElasticaResult
     public function setExtra(array $extra)
     {
         $this->extra = $extra;
+
         return $this;
+    }
+
+    /**
+     * @param mixed                    $value
+     * @param AutoAggregationInterface $metadata
+     * @return $this
+     */
+    public function setAutoAggregation($value, AutoAggregationInterface $metadata)
+    {
+        if (!is_array($this->extra)) {
+            $this->extra = [];
+        }
+        $name = $metadata->getSerializeName();
+        if ($metadata->getSerializeType()) {
+            $this->extra['aggregations'][$name][$metadata->getSerializeType()] = $value;
+        } else {
+            $this->extra['aggregations'][$name][$metadata->getSerializeType()] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @Serializer\VirtualProperty
+     * @Serializer\Groups({"eav_result"})
+     * @Serializer\SerializedName("aggregations")
+     * @Serializer\Type("array")
+     * @return array|null
+     */
+    public function getAutoAggregations()
+    {
+        return $this->get('aggregations');
+    }
+
+    /**
+     * Universal getter
+     *
+     * @param string $name
+     * @return mixed|null
+     */
+    protected function get($name)
+    {
+        return isset($this->extra[$name]) ? $this->extra[$name] : null;
     }
 }
