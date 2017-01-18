@@ -60,10 +60,9 @@ abstract class ElasticaList
             $this->addFilters($elastica, $filterCommon);
             $this->addAggregations($elastica, $query);
             $this->addOrder($elastica, $query);
-
             $data = $this->finder->findPaginated($elastica);
-            $data->setCurrentPage($query->getPage());
             $data->setMaxPerPage($query->getPageGroup());
+            $data->setCurrentPage($query->getPage());
 
             $rows = (array) $data->getIterator();
             $result = $this->createResult(
@@ -181,9 +180,12 @@ abstract class ElasticaList
         $qry = new \Elastica\Query\BoolQuery();
 
         foreach ($properties as $property) {
+//            echo json_encode($property);
             $value = $property->getValue($query);
             $type = $property->getType();
             if (!$this->filterQuery($value, $property->getFilter())) {
+//                echo json_encode($property->getFilter());
+//                echo '---------';
                 continue;
             }
             if ($callMethod = $type->callMethod) {
