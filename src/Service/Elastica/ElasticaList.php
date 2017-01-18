@@ -180,12 +180,9 @@ abstract class ElasticaList
         $qry = new \Elastica\Query\BoolQuery();
 
         foreach ($properties as $property) {
-//            echo json_encode($property);
             $value = $property->getValue($query);
             $type = $property->getType();
             if (!$this->filterQuery($value, $property->getFilter())) {
-//                echo json_encode($property->getFilter());
-//                echo '---------';
                 continue;
             }
             if ($callMethod = $type->callMethod) {
