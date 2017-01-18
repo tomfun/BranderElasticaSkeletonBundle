@@ -60,10 +60,9 @@ abstract class ElasticaList
             $this->addFilters($elastica, $filterCommon);
             $this->addAggregations($elastica, $query);
             $this->addOrder($elastica, $query);
-
             $data = $this->finder->findPaginated($elastica);
-            $data->setCurrentPage($query->getPage());
             $data->setMaxPerPage($query->getPageGroup());
+            $data->setCurrentPage($query->getPage());
 
             $rows = (array) $data->getIterator();
             $result = $this->createResult(
